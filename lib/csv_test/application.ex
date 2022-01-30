@@ -8,8 +8,7 @@ defmodule CsvTest.Application do
   @impl true
   def start(_type, _args) do
     children = [
-      # Starts a worker by calling: CsvTest.Worker.start_link(arg)
-      # {CsvTest.Worker, arg}
+      CsvTest.Repo
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
