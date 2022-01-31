@@ -22,12 +22,7 @@ defmodule CsvTest.PlayerSeasons do
     table_header =
       "total_seniors,club_seniors,national_teams_seniors,club_youth_honours,national_team_youth_honours,career_stats,player_id,club_id"
 
-    readable_entry =
-      entry
-      |> List.to_string()
-      |> String.replace("\"", "")
-      |> String.replace_leading("{", "")
-      |> String.replace_trailing(",", "")
+    readable_entry = clean_up_entry(entry)
 
     if readable_entry == table_header do
       :ok
@@ -57,6 +52,14 @@ defmodule CsvTest.PlayerSeasons do
     end
   end
 
+  defp clean_up_entry(entry) do
+    entry
+    |> List.to_string()
+    |> String.replace("\"", "")
+    |> String.replace_leading("{", "")
+    |> String.replace_trailing(",", "")
+  end
+
   defp normalize_map_entries(entry) do
     if entry == "{}" or entry == "" do
       %{}
@@ -72,9 +75,7 @@ defmodule CsvTest.PlayerSeasons do
   defp get_national_team_honours([first | _rest]),
     do: String.split(first, "},") |> List.first() |> normalize_map_entries()
 
-  defp get_player_id(list) do
-    list |> List.to_string() |> String.split(",") |> List.last()
-  end
+  defp get_player_id(list), do: list |> List.to_string() |> String.split(",") |> List.last()
 
   defp get_career_stats(list) do
     cleaned_list =
@@ -87,9 +88,7 @@ defmodule CsvTest.PlayerSeasons do
     |> Enum.map(fn x -> list_to_merged_map(x) end)
   end
 
-  defp normalize_list(list) do
-    Enum.map(list, fn x -> normalize_map_entries(x) end)
-  end
+  defp normalize_list(list), do: Enum.map(list, fn x -> normalize_map_entries(x) end)
 
   defp get_first_career_stat([head | _tail]) do
     head
@@ -98,11 +97,7 @@ defmodule CsvTest.PlayerSeasons do
     |> String.replace_leading("{", "")
   end
 
-  defp get_middle_career_stats(list) do
-    list
-    |> Enum.drop(1)
-    |> Enum.drop(-1)
-  end
+  defp get_middle_career_stats(list), do: list |> Enum.drop(1) |> Enum.drop(-1)
 
   defp get_last_career_stat(list) do
     list
@@ -129,7 +124,5 @@ defmodule CsvTest.PlayerSeasons do
     end
   end
 
-  defp list_to_merged_map(list) do
-    Enum.reduce(list, %{}, fn x, acc -> Map.merge(x, acc) end)
-  end
+  defp list_to_merged_map(list), do: Enum.reduce(list, %{}, fn x, acc -> Map.merge(x, acc) end)
 end
