@@ -20,7 +20,7 @@ defmodule CsvTest.PlayerSeasons do
 
   defp process_entry(entry) do
     table_header =
-      "total_seniors,club_seniors,national_teams_seniors,club_youth_honours,national_team_youth_honours,career_stats,player_id,club_id"
+      "\uFEFFtotal_seniors,club_seniors,national_teams_seniors,club_youth_honours,national_team_youth_honours,career_stats,player_id,club_id"
 
     readable_entry = clean_up_entry(entry)
 
@@ -78,11 +78,7 @@ defmodule CsvTest.PlayerSeasons do
   defp get_player_id(list), do: list |> List.to_string() |> String.split(",") |> List.last()
 
   defp get_career_stats(list) do
-    cleaned_list =
-      [get_first_career_stat(list)] ++
-        get_middle_career_stats(list) ++ [get_last_career_stat(list)]
-
-    cleaned_list
+    get_cleaned_list(list)
     |> Enum.map(fn x -> String.split(x, ",") end)
     |> Enum.map(fn x -> normalize_list(x) end)
     |> Enum.map(fn x -> list_to_merged_map(x) end)
@@ -95,9 +91,15 @@ defmodule CsvTest.PlayerSeasons do
     |> String.split("},[")
     |> List.last()
     |> String.replace_leading("{", "")
+    |> String.replace(["}]", "[{"], "")
   end
 
-  defp get_middle_career_stats(list), do: list |> Enum.drop(1) |> Enum.drop(-1)
+  defp get_middle_career_stats(list) do
+    list
+    |> Enum.drop(1)
+    |> Enum.drop(-1)
+    |> Enum.map(fn x -> String.replace(x, ["}]", "[{"], "") end)
+  end
 
   defp get_last_career_stat(list) do
     list
@@ -105,6 +107,7 @@ defmodule CsvTest.PlayerSeasons do
     |> String.split("}],")
     |> Enum.drop(-1)
     |> List.last()
+    |> String.replace(["}]", "[{", "}"], "")
   end
 
   defp maybe_convert_to_integer(value) do
@@ -115,7 +118,7 @@ defmodule CsvTest.PlayerSeasons do
       value == "" ->
         value
 
-      String.length(value) <= 3 ->
+      String.match?(value, ~r/^[[:digit:]]+$/) ->
         {new_value, _} = Integer.parse(value)
         new_value
 
@@ -125,4 +128,13 @@ defmodule CsvTest.PlayerSeasons do
   end
 
   defp list_to_merged_map(list), do: Enum.reduce(list, %{}, fn x, acc -> Map.merge(x, acc) end)
+
+  defp get_cleaned_list(list) when length(list) == 1, do: [get_last_career_stat(list)]
+
+  defp get_cleaned_list(list) when length(list) == 2,
+    do: [get_first_career_stat(list)] ++ [get_last_career_stat(list)]
+
+  defp get_cleaned_list(list) do
+    [get_first_career_stat(list)] ++ get_middle_career_stats(list) ++ [get_last_career_stat(list)]
+  end
 end
