@@ -7,3 +7,5 @@ config :csv_test, CsvTest.Repo,
   hostname: "localhost"
 
 config :csv_test, ecto_repos: [CsvTest.Repo]
+
+import_config "#{Mix.env()}.exs"
