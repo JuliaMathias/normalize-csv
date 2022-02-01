@@ -4,7 +4,7 @@ defmodule CsvTest.PlayerSeason do
   """
   use Ecto.Schema
 
-  schema "player_season" do
+  schema "players_seasons" do
     field(:total_seniors, :map)
     field(:club_seniors, :map)
     field(:national_team_seniors, :map)
@@ -13,5 +13,7 @@ defmodule CsvTest.PlayerSeason do
     field(:career_stats, {:array, :map})
     field(:player_id, :string)
     field(:club_id, :string)
+
+    timestamps()
   end
 end

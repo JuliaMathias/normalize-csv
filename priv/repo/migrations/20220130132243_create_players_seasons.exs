@@ -7,10 +7,12 @@ defmodule CsvTest.Repo.Migrations.CreatePlayersSeasons do
       add :club_seniors, :map
       add :national_team_seniors, :map
       add :club_youth_honours, :map
-      add :national_team_youth_honours, :map,
-      add :career_stats, :array
+      add :national_team_youth_honours, :map
       add :player_id, :string
       add :club_id, :string
+      add :career_stats, {:array, :map}
+
+      timestamps()
     end
   end
 end
